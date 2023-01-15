@@ -9,6 +9,11 @@ import soundfile as sf
 
 
 def check_utt_length(file_path):
+    """
+
+    :param file_path:
+    :return:
+    """
     main_path = file_path.rsplit("/", 2)[0]
     file_name = file_path.split("/")[-1].split(".")[0]
 
@@ -25,6 +30,11 @@ def check_utt_length(file_path):
 
 
 def define_utt_type(transcript_prompt):
+    """
+    Classify utterance between a word, blabber or sentence.
+    :param transcript_prompt: transcript of speech
+    :return: type of speech
+    """
     if " " not in transcript_prompt:
         return "word"
 
@@ -36,6 +46,11 @@ def define_utt_type(transcript_prompt):
 
 
 def check_transcripts(file_path):
+    """
+
+    :param file_path: Parent file path of the speech
+    :return: Nothing returned. transcripts.csv file generated
+    """
 
     all_files = glob.glob(file_path, recursive=True)
 

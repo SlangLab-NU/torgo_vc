@@ -9,3 +9,7 @@ To do parallel voice conversion though, we need a dataset that labels the same t
 However, the free samples are not labelled in a way that we can directly do VC.
 
 This script preprocesses and filters the TORGO samples so that parallel voice conversion is possible.
+
+## Usage
+In the base project directory, the program expects a folder for F, FC, M, and MC. Each folder needs to 
+have no spaces after the name as it will interfere with a matching criteria.

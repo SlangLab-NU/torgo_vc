@@ -22,6 +22,7 @@ def open_and_save_wav(file_path, new_id, split_type):
 
 def process_csv_file(df_dys, df_nondys, gender):
 
+
     df_res = pd.merge(df_dys, df_nondys, on="transcripts")
     df_res = df_res.loc[df_res["transcripts"] != "[relax your mouth in its normal position]"]
     df_res = df_res.drop_duplicates(subset="directory_x")
@@ -70,6 +71,6 @@ if __name__ == "__main__":
 
     df_dysM = df.loc[df["general_ids"] == "M"]
     df_nondysM = df.loc[df["general_ids"] == "MC"]
-
+    print(df_nondysM.head())
     process_csv_file(df_dysF, df_nondysF, "F")
     process_csv_file(df_dysM, df_nondysM, "M")
