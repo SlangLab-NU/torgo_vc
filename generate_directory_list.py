@@ -1,11 +1,17 @@
 import numpy as np
+import pandas
 import pandas as pd
 import glob
 import os
 from tqdm import tqdm
-  
+import xlrd
 import librosa
 import soundfile as sf
+
+"""
+Modified from: https://github.com/lesterphillip/torgo_vc
+
+"""
 
 
 def check_utt_length(file_path):
@@ -71,15 +77,19 @@ def check_transcripts(file_path):
         file_ = og_file.replace("\\", "/")
         f_ = open(file_, "r")
 
+        transcript_prompt = f_.read()
+        transcript_prompt = transcript_prompt.strip("\n")
+
+        if (transcript_prompt.split("/")[0] == "input"):
+            continue
+        else:
+            transcripts.append(transcript_prompt)
+
         general_id = file_.split("/")[1]
         general_ids.append(general_id)
 
         spkr_id = file_.split("/")[2]
         spkr_ids.append(spkr_id)
-
-        transcript_prompt = f_.read()
-        transcript_prompt = transcript_prompt.strip("\n")
-        transcripts.append(transcript_prompt)
 
         utt_type.append(define_utt_type(transcript_prompt))
 
@@ -87,13 +97,14 @@ def check_transcripts(file_path):
             duration, wav_location = check_utt_length(file_)
             file_duration.append(duration)
             directories.append(wav_location)
-        
+
         except FileNotFoundError as e:
             file_duration.append(np.NaN)
             directories.append(np.NaN)
-        
+
     df = pd.DataFrame({
         "general_ids": general_ids,
+        "speaker_ids": spkr_ids,
         "directory": directories,
         "transcripts": transcripts,
         "utt_type": utt_type,
@@ -105,5 +116,91 @@ def check_transcripts(file_path):
     print(df.head())
 
 
-if __name__ == "__main__":
-    check_transcripts("./*/*0*/Session*/prompts/*.txt")
+def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str):
+    """
+
+    Args:
+        audio_file_path: "./data/UASpeech/audio/*/*/*.wav"
+
+    Returns:
+
+    """
+
+    # ./data/UASpeech/audio/original/M07/M07_B3_CW88_M7.wav
+    all_audio_files = glob.glob(audio_file_path, recursive=True)
+
+    try:
+        xls = pd.ExcelFile(transcript_file_path)
+        transcript_file_paths = pd.read_excel(xls, "Word_filename")
+    except FileNotFoundError as e:
+        raise FileNotFoundError("Excel Transcript file not found")
+
+    general_ids = []
+    spkr_ids = []
+    word_ids = []
+    mic = []
+    directories = []
+
+    file_duration = []
+
+    for audio_file in tqdm(all_audio_files):
+        audio_file_path = audio_file.replace("\\", "/")
+
+        # print(file_path)
+        split_path = audio_file_path.split("/")
+        context = split_path[-1].split("_")
+
+        if context[0][0].lower() == "c":
+            if context[0][1].lower() == "m":
+                general_ids.append("MC")
+            else:
+                general_ids.append("FC")
+        else:
+            general_ids.append(context[0][0])
+
+        spkr_ids.append(context[0])
+        if context[2][0:2].lower() == "uw":
+            word_ids.append(context[1] + "_" + context[2])
+        else:
+            word_ids.append(context[2])
+        mic.append(context[3].split(".")[0])
+
+        try:
+            directories.append(os.path.abspath(audio_file_path))
+
+            y, sr = librosa.load(audio_file_path, 16000)
+            duration = librosa.get_duration(y=y, sr=sr)
+            file_duration.append(duration)
+
+
+        except FileNotFoundError as e:
+            file_duration.append(np.NaN)
+            directories.append(np.NaN)
+
+    df = pd.DataFrame({
+        "general_ids": general_ids,
+        "speaker_ids": spkr_ids,
+        "directory": directories,
+        "word_ids": word_ids,
+        "mic": mic,
+        "duration": file_duration
+    })
+
+    df = merge_uaspeech_audio_transcripts(df, transcript_file_paths)
+
+    df.to_csv("UAspeech_transcripts.csv", index=False)
+    return df
+
+
+def merge_uaspeech_audio_transcripts(df: pandas.DataFrame, transcript_file_paths: pandas.DataFrame):
+    output = pd.merge(df, transcript_file_paths, left_on="word_ids", right_on="FILE NAME", how="left")
+    output = output.drop(columns=["FILE NAME", "word_ids"])
+
+    output = output.rename(columns={"WORD": "transcripts"})
+    return output
+
+#
+# if __name__ == "__main__":
+# #     check_transcripts("./*/*0*/Session*/prompts/*.txt")
+#     print("Hello World")
+#     generate_directory_uaspeech("./data/UASpeech/audio/original/*/*.wav")

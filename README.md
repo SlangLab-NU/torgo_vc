@@ -13,3 +13,5 @@ This script preprocesses and filters the TORGO samples so that parallel voice co
 ## Usage
 In the base project directory, the program expects a folder for F, FC, M, and MC. Each folder needs to 
 have no spaces after the name as it will interfere with a matching criteria.
+
+"./data/*/*0*/Session*/prompts/*.txt" = ./parent_directory/General_group/speaker/Session*/prompts/*.txt"

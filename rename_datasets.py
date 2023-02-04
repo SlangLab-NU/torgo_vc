@@ -6,6 +6,12 @@ import glob
 import librosa
 import soundfile as sf
 from math import floor, ceil
+from sklearn.model_selection import train_test_split
+
+"""
+Modified from: https://github.com/lesterphillip/torgo_vc
+
+"""
 
 
 def open_and_save_wav(file_path, new_id, split_type):
@@ -21,8 +27,6 @@ def open_and_save_wav(file_path, new_id, split_type):
 
 
 def process_csv_file(df_dys, df_nondys, gender):
-
-
     df_res = pd.merge(df_dys, df_nondys, on="transcripts")
     df_res = df_res.loc[df_res["transcripts"] != "[relax your mouth in its normal position]"]
     df_res = df_res.drop_duplicates(subset="directory_x")
@@ -56,21 +60,65 @@ def process_csv_file(df_dys, df_nondys, gender):
 
         make_directory = "/transcripts"
 
-        
-
-
     df_res.to_csv("total_summary.csv", index=False)
 
 
-if __name__ == "__main__":
-    df = pd.read_csv("transcripts.csv")
-    df = df.sample(frac=1, random_state=0).reset_index(drop=True)
-    print(df.head())
-    df_dysF = df.loc[df["general_ids"] == "F"]
-    df_nondysF = df.loc[df["general_ids"] == "FC"]
+def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int, src_speaker: str = "na"):
+    """
+    Function maps Torgo speech based on the transcript from either many to one or one to one
+    Args:
+        trgspk: Target speaker that the train/dev split is being made for
+        df: Dataframe of all speech samples
 
-    df_dysM = df.loc[df["general_ids"] == "M"]
-    df_nondysM = df.loc[df["general_ids"] == "MC"]
-    print(df_nondysM.head())
-    process_csv_file(df_dysF, df_nondysF, "F")
-    process_csv_file(df_dysM, df_nondysM, "M")
+        df: Dataset that is being split
+
+        random_seed: Seed number for the train test split
+
+        src_speaker: If the mapping is going to be one to one instead of many to one, include a src speaker.
+
+    Returns: Train test split dataframe
+    """
+
+    print(trgspk)
+    if trgspk not in df["speaker_ids"].values:
+        raise ValueError("Target speaker not in dataset")
+
+    trgspk_df = df.loc[df["speaker_ids"] == trgspk]
+    trgspk_df = trgspk_df.drop_duplicates(subset=["transcripts"])
+
+    if src_speaker != "na":
+        if src_speaker in df["speaker_ids"].values:
+            df = df.loc[df["speaker_ids"] == src_speaker]
+        else:
+            raise ValueError("Source speaker not in dataset")
+
+    else:
+        df = df.loc[(df["general_ids"] != "MC") & (df["general_ids"] != "FC")]
+
+    df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
+
+    output = df.merge(trgspk_df, on="transcripts")
+
+    output.to_csv(f"{trgspk}_paired.csv", index=False)
+
+    # TODO Train test split. How to split up the transcripts other than randomly
+    train, test = train_test_split(output, test_size=0.2, random_state=random_seed)
+    return train, test
+
+# if __name__ == "__main__":
+#     df = pd.read_csv("transcripts.csv")
+#
+#     train, test = many_to_one("MC01", df, 2)
+#     print(train.shape[0])
+#     print(test.shape[0])
+
+# df = df.sample(frac=1, random_state=0).reset_index(drop=True)
+# print(df.head())
+# df_dysF = df.loc[df["general_ids"] == "F"]
+# df_nondysF = df.loc[df["general_ids"] == "FC"]
+#
+# df_dysM = df.loc[df["general_ids"] == "M"]
+# df_nondysM = df.loc[df["general_ids"] == "MC"]
+# print(df_nondysM.head())
+# process_csv_file(df_dysF, df_nondysF, "F")
+# process_csv_file(df_dysM, df_nondysM, "M")
