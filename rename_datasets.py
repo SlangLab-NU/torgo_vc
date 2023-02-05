@@ -63,7 +63,7 @@ def process_csv_file(df_dys, df_nondys, gender):
     df_res.to_csv("total_summary.csv", index=False)
 
 
-def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int, src_speaker: str = "na"):
+def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_speaker: str = "na"):
     """
     Function maps Torgo speech based on the transcript from either many to one or one to one
     Args:
@@ -79,7 +79,6 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int, src_speaker:
     Returns: Train test split dataframe
     """
 
-    print(trgspk)
     if trgspk not in df["speaker_ids"].values:
         raise ValueError("Target speaker not in dataset")
 
@@ -105,20 +104,3 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int, src_speaker:
     train, test = train_test_split(output, test_size=0.2, random_state=random_seed)
     return train, test
 
-# if __name__ == "__main__":
-#     df = pd.read_csv("transcripts.csv")
-#
-#     train, test = many_to_one("MC01", df, 2)
-#     print(train.shape[0])
-#     print(test.shape[0])
-
-# df = df.sample(frac=1, random_state=0).reset_index(drop=True)
-# print(df.head())
-# df_dysF = df.loc[df["general_ids"] == "F"]
-# df_nondysF = df.loc[df["general_ids"] == "FC"]
-#
-# df_dysM = df.loc[df["general_ids"] == "M"]
-# df_nondysM = df.loc[df["general_ids"] == "MC"]
-# print(df_nondysM.head())
-# process_csv_file(df_dysF, df_nondysF, "F")
-# process_csv_file(df_dysM, df_nondysM, "M")

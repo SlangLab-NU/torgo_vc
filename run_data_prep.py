@@ -50,12 +50,10 @@ def main():
     target_speaker = str(args.target_speaker).strip()
 
     if args.source_speaker == None:
-        match_speakers(target_speaker, df)
+        match_speakers(target_speaker, df, random_seed=args.random_seed)
     else:
         match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker)
 
-
-    print(file_path)
 
 if __name__ =="__main__":
     main()
