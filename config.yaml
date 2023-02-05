@@ -1,0 +1,7 @@
+
+
+
+
+file_paths:
+  excel_file_path: "/Users/ianyip/Documents/Coding/s3prl/s3prl/downstream/a2o-vc-vcc2020/data/UASpeech/doc/speaker_wordlist.xls"
+  data_file_path: "/Users/ianyip/Documents/Coding/s3prl/s3prl/downstream/a2o-vc-vcc2020/data/UASpeech/audio/original/*/*.wav"
