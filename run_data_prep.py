@@ -49,10 +49,12 @@ def main():
     df = pd.read_csv("UAspeech_transcripts.csv")
     target_speaker = str(args.target_speaker).strip()
 
+
+    train, dev, test = pd.DataFrame, pd.DataFrame, pd.DataFrame
     if args.source_speaker == None:
-        match_speakers(target_speaker, df, random_seed=args.random_seed)
+        train, dev, test = match_speakers(target_speaker, df, random_seed=args.random_seed)
     else:
-        match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker)
+        train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker)
 
 
 if __name__ =="__main__":

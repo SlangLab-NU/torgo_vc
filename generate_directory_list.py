@@ -132,6 +132,7 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
     try:
         xls = pd.ExcelFile(transcript_file_path)
         transcript_file_paths = pd.read_excel(xls, "Word_filename")
+        transcript_file_paths['word_index'] = range(1, len(transcript_file_paths) + 1)
     except FileNotFoundError as e:
         raise FileNotFoundError("Excel Transcript file not found")
 
@@ -168,10 +169,12 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
         try:
             directories.append(os.path.abspath(audio_file_path))
 
-            y, sr = librosa.load(audio_file_path, 16000)
-            duration = librosa.get_duration(y=y, sr=sr)
-            file_duration.append(duration)
+            # TODO Swap out commented code to turn file duration getting back on.
 
+            # y, sr = librosa.load(audio_file_path, 16000)
+            # duration = librosa.get_duration(y=y, sr=sr)
+            # file_duration.append(duration)
+            file_duration.append(np.NaN)
 
         except FileNotFoundError as e:
             file_duration.append(np.NaN)
@@ -189,12 +192,13 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
     df = merge_uaspeech_audio_transcripts(df, transcript_file_paths)
 
     df.to_csv("UAspeech_transcripts.csv", index=False)
+
     return df
 
 
 def merge_uaspeech_audio_transcripts(df: pandas.DataFrame, transcript_file_paths: pandas.DataFrame):
     output = pd.merge(df, transcript_file_paths, left_on="word_ids", right_on="FILE NAME", how="left")
-    output = output.drop(columns=["FILE NAME", "word_ids"])
+    output = output.drop(columns=["FILE NAME"])
 
     output = output.rename(columns={"WORD": "transcripts"})
     return output

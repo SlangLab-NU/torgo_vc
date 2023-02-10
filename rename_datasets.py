@@ -1,4 +1,5 @@
 import numpy as np
+import pandas
 import pandas as pd
 from tqdm import tqdm
 import os
@@ -25,6 +26,9 @@ def open_and_save_wav(file_path, new_id, split_type):
 
     sf.write(new_path, y, sr)
 
+
+def save_split_df(df: pandas.DataFrame):
+    x = 0
 
 def process_csv_file(df_dys, df_nondys, gender):
     df_res = pd.merge(df_dys, df_nondys, on="transcripts")
@@ -96,11 +100,25 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
     df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
 
-    output = df.merge(trgspk_df, on="transcripts")
+    df = df[df.mic != "M1"]
 
+
+
+
+    df = df.merge(trgspk_df, on=["transcripts", "mic"])
+
+    # Element of randomness as mode can change if there is a tie.
+    max_occurence_mic = df["mic"].mode().values[0]
+
+    print(max_occurence_mic)
+    df = df[df.mic == max_occurence_mic]
+
+
+    output = df
     output.to_csv(f"{trgspk}_paired.csv", index=False)
 
     # TODO Train test split. How to split up the transcripts other than randomly
     train, test = train_test_split(output, test_size=0.2, random_state=random_seed)
-    return train, test
+    dev, test = train_test_split(test, test_size=0.5, random_state=random_seed)
+    return train, test, dev
 
