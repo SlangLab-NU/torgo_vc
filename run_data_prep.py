@@ -12,7 +12,7 @@ import numpy as np
 import yaml
 
 from generate_directory_list import generate_directory_uaspeech
-from rename_datasets import match_speakers
+from rename_datasets import match_speakers, save_split_df
 
 def get_data_prep_args():
     parser = argparse.ArgumentParser(description="Prepares UASpeech for VS or ASR")
@@ -56,6 +56,9 @@ def main():
     else:
         train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker)
 
+    save_split_df(train, "train")
+    save_split_df(dev, "dev")
+    save_split_df(test, "test")
 
 if __name__ =="__main__":
     main()

@@ -15,9 +15,8 @@ Modified from: https://github.com/lesterphillip/torgo_vc
 """
 
 
-def open_and_save_wav(file_path, new_id, split_type):
-    y, sr = librosa.load(file_path, 16000)
-    general_id = file_path.split("/")[1]
+def open_and_save_wav(file_path, general_id, new_id, split_type):
+    y, sr = librosa.load(file_path, sr = 16000)
     new_path = f"output/{split_type}/{general_id}/{new_id}.wav"
     make_directory = new_path.rsplit("/", 1)[0]
 
@@ -27,8 +26,12 @@ def open_and_save_wav(file_path, new_id, split_type):
     sf.write(new_path, y, sr)
 
 
-def save_split_df(df: pandas.DataFrame):
-    x = 0
+def save_split_df(df: pandas.DataFrame, split: str):
+
+    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['general_ids_x'], row["word_ids_x"], split), axis=1)
+
+    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['general_ids_y'], row["word_ids_y"], split), axis=1)
+
 
 def process_csv_file(df_dys, df_nondys, gender):
     df_res = pd.merge(df_dys, df_nondys, on="transcripts")
