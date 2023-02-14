@@ -4,9 +4,7 @@ import pandas as pd
 import glob
 import os
 from tqdm import tqdm
-import xlrd
 import librosa
-import soundfile as sf
 
 """
 Modified from: https://github.com/lesterphillip/torgo_vc

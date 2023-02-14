@@ -1,9 +1,7 @@
-import numpy as np
 import pandas
 import pandas as pd
 from tqdm import tqdm
 import os
-import glob
 import librosa
 import soundfile as sf
 from math import floor, ceil
@@ -28,9 +26,9 @@ def open_and_save_wav(file_path, general_id, new_id, split_type):
 
 def save_split_df(df: pandas.DataFrame, split: str):
 
-    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['general_ids_x'], row["word_ids_x"], split), axis=1)
+    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split), axis=1)
 
-    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['general_ids_y'], row["word_ids_y"], split), axis=1)
+    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split), axis=1)
 
 
 def process_csv_file(df_dys, df_nondys, gender):
@@ -108,7 +106,7 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
 
 
-    df = df.merge(trgspk_df, on=["transcripts", "mic"])
+    df = df.merge(trgspk_df, on=["transcripts"])
 
     # Element of randomness as mode can change if there is a tie.
     max_occurence_mic = df["mic"].mode().values[0]
