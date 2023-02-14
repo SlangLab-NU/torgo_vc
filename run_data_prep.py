@@ -27,27 +27,28 @@ def get_data_prep_args():
 
 def main():
     args = get_data_prep_args()
-    with open('config.yaml', 'r') as f:
-        doc = yaml.load(f)
-
-    excel_file_path = doc["file_paths"]["excel_file_path"]
-    file_path = doc["file_paths"]["data_file_path"]
 
     if not os.path.isfile("UAspeech_transcripts.csv") or args.create_transcript.lower() == "y":
-        if file_path == None or excel_file_path == None:
+        with open('config.yaml', 'r') as f:
+            doc = yaml.load(f)
+
+        excel_file_path = doc["file_paths"]["excel_file_path"]
+        file_path = doc["file_paths"]["data_file_path"]
+        if file_path is None or excel_file_path is None:
             raise FileNotFoundError("Path to audio file and path to excel file needed")
         else:
             generate_directory_uaspeech(file_path, excel_file_path)
 
     df = pd.read_csv("UAspeech_transcripts.csv")
     target_speaker = str(args.target_speaker).strip()
-
-
-    train, dev, test = pd.DataFrame, pd.DataFrame, pd.DataFrame
-    if args.source_speaker == None:
-        train, dev, test = match_speakers(target_speaker, df, random_seed=args.random_seed)
+    if args.source_speaker is None:
+        train, dev, test = match_speakers(target_speaker, df,
+                                          random_seed=args.random_seed)
     else:
-        train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker)
+        train, dev, test = match_speakers(target_speaker,
+                                          df=df ,
+                                          random_seed=args.random_seed,
+                                          src_speaker=args.source_speaker)
 
     save_split_df(train, "train")
     save_split_df(dev, "dev")

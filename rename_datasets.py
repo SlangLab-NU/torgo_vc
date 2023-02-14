@@ -103,18 +103,7 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
     df = df[df.mic != "M1"]
 
-
-
-
     df = df.merge(trgspk_df, on=["transcripts"])
-
-    # Element of randomness as mode can change if there is a tie.
-    max_occurence_mic = df["mic"].mode().values[0]
-
-    print(max_occurence_mic)
-    df = df[df.mic == max_occurence_mic]
-
-
     output = df
     output.to_csv(f"{trgspk}_paired.csv", index=False)
 
