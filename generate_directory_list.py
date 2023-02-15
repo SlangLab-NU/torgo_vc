@@ -3,9 +3,7 @@ import pandas as pd
 import glob
 import os
 from tqdm import tqdm
-import xlrd
 import librosa
-import soundfile as sf
 
 """
 Modified from: https://github.com/lesterphillip/torgo_vc
@@ -214,7 +212,7 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
     return df
 
 
-def merge_uaspeech_audio_transcripts(df: pandas.DataFrame, transcript_file_paths: pandas.DataFrame):
+def merge_uaspeech_audio_transcripts(df: pd.DataFrame, transcript_file_paths: pd.DataFrame):
     output = pd.merge(df, transcript_file_paths, left_on="word_ids", right_on="FILE NAME", how="left")
     output = output.drop(columns=["FILE NAME"])
 
