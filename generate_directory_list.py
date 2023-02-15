@@ -53,11 +53,14 @@ def find_data_postions(file_path):
     :param file_path:
     :return:
     """
-    elements = np.where(file_path == "*")[0]
+    file_path = np.array(file_path)
 
+    elements = np.where(file_path == '*')[0]
+
+    print(elements)
     location_dict = {
-        "general_id" : elements[1],
-        "speaker_id" : elements[0],
+        "general_id" : elements[0],
+        "speaker_id" : elements[1],
     }
 
     return location_dict
@@ -72,7 +75,8 @@ def check_transcripts(file_path):
 
     all_files = glob.glob(file_path, recursive=True)
 
-    location_dict = find_data_postions(file_path)
+    file_path = file_path.replace("\\", "/")
+    location_dict = find_data_postions(file_path.split("/"))
 
     total_actions = 0
     total_words = 0
@@ -89,6 +93,7 @@ def check_transcripts(file_path):
 
     for og_file in tqdm(all_files):
         file_ = og_file.replace("\\", "/")
+
         f_ = open(file_, "r")
 
         transcript_prompt = f_.read()

@@ -5,4 +5,4 @@
 file_paths:
   excel_file_path: "/Users/ianyip/Documents/Coding/s3prl/s3prl/downstream/a2o-vc-vcc2020/data/UASpeech/doc/speaker_wordlist.xls"
   uaspeech_file_path: "/Users/ianyip/Documents/Coding/s3prl/s3prl/downstream/a2o-vc-vcc2020/data/UASpeech/audio/original/*/*.wav"
-  torgo_file_path: "/Users/ianyip/Documents/Coding/torgo_vc/data/*/*/*/wav_arrayMic/*.wav"
+  torgo_file_path: "/Users/ianyip/Documents/Coding/torgo_vc/data/*/*/Session*/prompts/*.txt"
