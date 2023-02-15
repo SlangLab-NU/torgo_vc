@@ -15,9 +15,9 @@ Modified from: https://github.com/lesterphillip/torgo_vc
 """
 
 
-def open_and_save_wav(file_path, general_id, new_id, split_type):
+def open_and_save_wav(file_path, speaker_id, new_id, split_type):
     y, sr = librosa.load(file_path, sr = 16000)
-    new_path = f"output/{split_type}/{general_id}/{new_id}.wav"
+    new_path = f"output/{split_type}/{speaker_id}/{new_id}.wav"
     make_directory = new_path.rsplit("/", 1)[0]
 
     if not os.path.exists(make_directory):
@@ -28,9 +28,9 @@ def open_and_save_wav(file_path, general_id, new_id, split_type):
 
 def save_split_df(df: pandas.DataFrame, split: str):
 
-    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['general_ids_x'], row["word_ids_x"], split), axis=1)
+    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split), axis=1)
 
-    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['general_ids_y'], row["word_ids_y"], split), axis=1)
+    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split), axis=1)
 
 
 def process_csv_file(df_dys, df_nondys, gender):
@@ -70,7 +70,7 @@ def process_csv_file(df_dys, df_nondys, gender):
     df_res.to_csv("total_summary.csv", index=False)
 
 
-def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_speaker: str = "na"):
+def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_speaker: str = "na", match_mic: str = "n"):
     """
     Function maps Torgo speech based on the transcript from either many to one or one to one
     Args:
@@ -101,20 +101,26 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
     else:
         df = df.loc[(df["general_ids"] != "MC") & (df["general_ids"] != "FC")]
 
-    df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
+    # Possible error if we are matching mics, but currently unsure and dataset might be too small regardless.
+    # Might drop duplicate that might mic match later.
 
     df = df[df.mic != "M1"]
 
+    df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
 
 
 
-    df = df.merge(trgspk_df, on=["transcripts", "mic"])
 
-    # Element of randomness as mode can change if there is a tie.
-    max_occurence_mic = df["mic"].mode().values[0]
+    if match_mic.lower() == "y":
+        df = df.merge(trgspk_df, on=["transcripts", "mic"])
 
-    print(max_occurence_mic)
-    df = df[df.mic == max_occurence_mic]
+        # Element of randomness as mode can change if there is a tie.
+        max_occurence_mic = df["mic"].mode().values[0]
+
+        df = df[df.mic == max_occurence_mic]
+
+    else:
+        df = df.merge(trgspk_df, on=["transcripts"])
 
 
     output = df
