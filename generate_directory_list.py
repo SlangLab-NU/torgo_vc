@@ -1,5 +1,4 @@
 import numpy as np
-import pandas
 import pandas as pd
 import glob
 import os
@@ -48,6 +47,24 @@ def define_utt_type(transcript_prompt):
     else:
         return "sentence"
 
+def find_data_postions(file_path):
+    """
+    Finds where the stars (location where speaker ID and general ID are in the dataset)
+    :param file_path:
+    :return:
+    """
+    file_path = np.array(file_path)
+
+    elements = np.where(file_path == '*')[0]
+
+    print(elements)
+    location_dict = {
+        "general_id" : elements[0],
+        "speaker_id" : elements[1],
+    }
+
+    return location_dict
+
 
 def check_transcripts(file_path):
     """
@@ -57,6 +74,9 @@ def check_transcripts(file_path):
     """
 
     all_files = glob.glob(file_path, recursive=True)
+
+    file_path = file_path.replace("\\", "/")
+    location_dict = find_data_postions(file_path.split("/"))
 
     total_actions = 0
     total_words = 0
@@ -73,6 +93,7 @@ def check_transcripts(file_path):
 
     for og_file in tqdm(all_files):
         file_ = og_file.replace("\\", "/")
+
         f_ = open(file_, "r")
 
         transcript_prompt = f_.read()
@@ -83,10 +104,10 @@ def check_transcripts(file_path):
         else:
             transcripts.append(transcript_prompt)
 
-        general_id = file_.split("/")[1]
+        general_id = file_.split("/")[location_dict["general_id"]]
         general_ids.append(general_id)
 
-        spkr_id = file_.split("/")[2]
+        spkr_id = file_.split("/")[location_dict["speaker_id"]]
         spkr_ids.append(spkr_id)
 
         utt_type.append(define_utt_type(transcript_prompt))
@@ -112,6 +133,8 @@ def check_transcripts(file_path):
     df = df[df["directory"].notna()]
     df.to_csv(f"transcripts.csv", index=False)
     print(df.head())
+
+
 
 
 def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str):
@@ -194,7 +217,7 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
     return df
 
 
-def merge_uaspeech_audio_transcripts(df: pandas.DataFrame, transcript_file_paths: pandas.DataFrame):
+def merge_uaspeech_audio_transcripts(df: pd.DataFrame, transcript_file_paths: pd.DataFrame):
     output = pd.merge(df, transcript_file_paths, left_on="word_ids", right_on="FILE NAME", how="left")
     output = output.drop(columns=["FILE NAME"])
 
