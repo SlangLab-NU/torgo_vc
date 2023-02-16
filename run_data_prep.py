@@ -1,12 +1,8 @@
 import os
 
 import pandas as pd
-import yaml
-import glob
-import random
 import argparse
-import logging
-import numpy as np
+
 import yaml
 import xlrd
 
@@ -44,8 +40,6 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
     df = pd.read_csv("UAspeech_transcripts.csv")
     target_speaker = str(args.target_speaker).strip()
 
-
-    train, dev, test = pd.DataFrame, pd.DataFrame, pd.DataFrame
     if args.source_speaker == None:
         train, dev, test = match_speakers(target_speaker, df, random_seed=args.random_seed, match_mic=args.match_mic)
     else:

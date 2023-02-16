@@ -1,9 +1,7 @@
-import numpy as np
 import pandas
 import pandas as pd
 from tqdm import tqdm
 import os
-import glob
 import librosa
 import soundfile as sf
 from math import floor, ceil
@@ -105,6 +103,7 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
     # Might drop duplicate that might mic match later.
 
     df = df[df.mic != "M1"]
+
 
     df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
 
