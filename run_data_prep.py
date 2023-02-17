@@ -39,6 +39,7 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
 
     df = pd.read_csv("UAspeech_transcripts.csv")
     target_speaker = str(args.target_speaker).strip()
+    df = df[df.mic != "M1"]
 
     if args.source_speaker == None:
         train, dev, test = match_speakers(target_speaker, df, random_seed=args.random_seed, match_mic=args.match_mic)
@@ -51,6 +52,20 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
 
 def prep_torgo(args, torgo_file_path: str):
     check_transcripts(file_path=torgo_file_path)
+
+    target_speaker = str(args.target_speaker).strip()
+
+    df = pd.read_csv("torgo_transcripts.csv")
+
+    if args.source_speaker == None:
+        train, dev, test = match_speakers(target_speaker, df, random_seed=args.random_seed, match_mic=args.match_mic)
+    else:
+        train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker, match_mic=args.match_mic)
+
+    save_split_df(train, "train")
+    save_split_df(dev, "dev")
+    save_split_df(test, "test")
+
 
 def main():
     args = get_data_prep_args()

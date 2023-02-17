@@ -70,7 +70,7 @@ def check_transcripts(file_path):
     """
 
     :param file_path: Parent file path of the speech
-    :return: Nothing returned. transcripts.csv file generated
+    :return: Nothing returned. torgo_transcripts.csv file generated
     """
 
     all_files = glob.glob(file_path, recursive=True)
@@ -131,7 +131,7 @@ def check_transcripts(file_path):
     })
 
     df = df[df["directory"].notna()]
-    df.to_csv(f"transcripts.csv", index=False)
+    df.to_csv(f"torgo_transcripts.csv", index=False)
     print(df.head())
 
 

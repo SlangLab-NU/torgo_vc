@@ -102,7 +102,6 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
     # Possible error if we are matching mics, but currently unsure and dataset might be too small regardless.
     # Might drop duplicate that might mic match later.
 
-    df = df[df.mic != "M1"]
 
 
     df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
