@@ -51,7 +51,9 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
     save_split_df(test, "test")
 
 def prep_torgo(args, torgo_file_path: str):
-    check_transcripts(file_path=torgo_file_path)
+
+    if not os.path.isfile("torgo_transcripts.csv") or args.create_transcript.lower() == "y":
+        check_transcripts(file_path=torgo_file_path)
 
     target_speaker = str(args.target_speaker).strip()
 
