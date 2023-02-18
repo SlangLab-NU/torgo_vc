@@ -130,9 +130,17 @@ def check_transcripts(file_path):
         "duration": file_duration
     })
 
+    unique_transcripts = df["transcripts"].unique()
+    transcript_ids = np.arange(len(unique_transcripts))
+
+    transcript_keys = pd.DataFrame({
+        "transcripts": unique_transcripts,
+        "word_ids": transcript_ids
+    })
+
+    df = df.merge(transcript_keys, on=["transcripts"])
     df = df[df["directory"].notna()]
     df.to_csv(f"torgo_transcripts.csv", index=False)
-    print(df.head())
 
 
 
