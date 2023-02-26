@@ -130,13 +130,20 @@ def check_transcripts(file_path):
         "duration": file_duration
     })
 
-    unique_transcripts = df["transcripts"].unique()
-    transcript_ids = np.arange(len(unique_transcripts))
+    df = df[df["utt_type"] != "blabber"]
 
-    transcript_keys = pd.DataFrame({
-        "transcripts": unique_transcripts,
-        "word_ids": transcript_ids
-    })
+    if not os.path.isfile("torgo_word_ids.csv"):
+
+        unique_transcripts = df["transcripts"].unique()
+        transcript_ids = np.arange(len(unique_transcripts))
+        transcript_keys = pd.DataFrame({
+            "transcripts": unique_transcripts,
+            "word_ids": transcript_ids
+        })
+        transcript_keys.to_csv("torgo_word_ids.csv")
+    else:
+        transcript_keys = pd.read_csv("torgo_word_ids.csv")
+
 
     df = df.merge(transcript_keys, on=["transcripts"])
     df = df[df["directory"].notna()]

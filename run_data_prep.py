@@ -1,5 +1,6 @@
 import os
 
+import pandas
 import pandas as pd
 import argparse
 
@@ -30,7 +31,27 @@ def get_data_prep_args():
     return args
 
 
+def save_splits_csv(train: pandas.DataFrame, test: pandas.DataFrame, dev: pandas.DataFrame):
+    """
+    Save the information on the different splits to a csv file.
+    :param train:
+    :param test:
+    :param dev:
+    :return:
+    """
+    frames = [train, test, dev]
+    df = pd.concat(frames)
+
+    df.to_csv(f"{df['speaker_ids_x'].iloc[0]}_{df['speaker_ids_y'].iloc[0]}_paired.csv")
+
 def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
+    """
+    Prep US
+    :param args:
+    :param excel_file_path:
+    :param uaspeech_file_path:
+    :return:
+    """
     if not os.path.isfile("UAspeech_transcripts.csv") or args.create_transcript.lower() == "y":
         if uaspeech_file_path == None or excel_file_path == None:
             raise FileNotFoundError("Path to audio file and path to excel file needed")
@@ -46,9 +67,11 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
     else:
         train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker, match_mic=args.match_mic)
 
-    save_split_df(train, "train")
-    save_split_df(dev, "dev")
-    save_split_df(test, "test")
+    train = save_split_df(train, "train")
+    dev = save_split_df(dev, "dev")
+    test = save_split_df(test, "test")
+
+    save_splits_csv(train, test, dev)
 
 def prep_torgo(args, torgo_file_path: str):
 
@@ -64,9 +87,12 @@ def prep_torgo(args, torgo_file_path: str):
     else:
         train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker, match_mic=args.match_mic)
 
-    save_split_df(train, "train")
-    save_split_df(dev, "dev")
-    save_split_df(test, "test")
+    train = save_split_df(train, "train")
+    dev = save_split_df(dev, "dev")
+    test = save_split_df(test, "test")
+
+    save_splits_csv(train, test, dev)
+
 
 
 def main():

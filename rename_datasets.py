@@ -22,14 +22,30 @@ def open_and_save_wav(file_path, speaker_id, new_id, split_type):
         os.makedirs(make_directory)
 
     sf.write(new_path, y, sr)
+    return os.path.abspath(new_path)
 
 
 def save_split_df(df: pandas.DataFrame, split: str):
 
-    df.apply(lambda row: open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split), axis=1)
+    # df.apply(lambda row: open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split), axis=1)
+    # df.apply(lambda row: open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split), axis=1)
 
-    df.apply(lambda row: open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split), axis=1)
+    for index, row in df.iterrows():
+        new_directory_x = open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split)
+        new_directory_y = open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split)
+        df.at[index, "directory_x"] = new_directory_x
+        df.at[index, "directory_y"] = new_directory_y
 
+
+    return df
+
+def generate_wav_scp(df: pandas.DataFrame, split: str):
+    df = df.reset_index()
+
+    output_x = ""
+    output_y = ""
+    for index, row in df.iterrows():
+        output_x += row['speaker_ids_x'] + row['word_ids_x'] + " "
 
 def process_csv_file(df_dys, df_nondys, gender):
     df_res = pd.merge(df_dys, df_nondys, on="transcripts")
@@ -122,7 +138,6 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
 
     output = df
-    output.to_csv(f"{trgspk}_paired.csv", index=False)
 
     # TODO Train test split. How to split up the transcripts other than randomly
     train, test = train_test_split(output, test_size=0.2, random_state=random_seed)
