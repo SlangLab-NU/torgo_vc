@@ -25,6 +25,7 @@ def get_data_prep_args():
     parser.add_argument("-s", "--source_speaker", help="Source speaker that we are mapping target speaker to" )
     parser.add_argument("-random_seed", "--random_seed", help="Random seed for train test split", type=int, default=1)
     parser.add_argument("-mm", "--match_mic", help="Match speaker microphone", choices=yes_no, default="n")
+    parser.add_argument("-c", "--copy_files", help="copy audio files?", choices=yes_no, default="n")
 
     args = parser.parse_args()
 
@@ -67,9 +68,11 @@ def prep_uaspeech(args, excel_file_path, uaspeech_file_path):
     else:
         train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker, match_mic=args.match_mic)
 
-    train = save_split_df(train, "train")
-    dev = save_split_df(dev, "dev")
-    test = save_split_df(test, "test")
+
+    if args.copy_files.lower() == "y":
+        train = save_split_df(train, "train")
+        dev = save_split_df(dev, "dev")
+        test = save_split_df(test, "test")
 
     save_splits_csv(train, test, dev)
 
@@ -87,9 +90,11 @@ def prep_torgo(args, torgo_file_path: str):
     else:
         train, dev, test = match_speakers(target_speaker,df=df , random_seed=args.random_seed, src_speaker=args.source_speaker, match_mic=args.match_mic)
 
-    train = save_split_df(train, "train")
-    dev = save_split_df(dev, "dev")
-    test = save_split_df(test, "test")
+    if args.copy_files.lower() == "y":
+
+        train = save_split_df(train, "train")
+        dev = save_split_df(dev, "dev")
+        test = save_split_df(test, "test")
 
     save_splits_csv(train, test, dev)
 

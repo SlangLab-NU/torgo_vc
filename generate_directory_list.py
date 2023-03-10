@@ -144,9 +144,10 @@ def check_transcripts(file_path):
     else:
         transcript_keys = pd.read_csv("torgo_word_ids.csv")
 
-
     df = df.merge(transcript_keys, on=["transcripts"])
+    df = df.drop(columns = ["Unnamed: 0"])
     df = df[df["directory"].notna()]
+
     df.to_csv(f"torgo_transcripts.csv", index=False)
 
 
