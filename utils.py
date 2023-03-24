@@ -17,14 +17,25 @@ def columns_to_txt(df: pandas.DataFrame, col_1_name: str, col_2_name: str):
     return str_output
 
 
+def columns_to_data(df: pandas.DataFrame, col_1_name: str, col_2_name: str):
+
+
+    str_output = ""
+    for index, row in df.iterrows():
+        str_output += "( " + str(row[col_1_name]) + ' "' + str(row[col_2_name]) + '" ) \n'
+
+    return str_output
+
+    return str_output
+
 def main():
 
-    df = pd.read_csv("torgo_transcripts.csv")
+    df = pd.read_csv("UAspeech_transcripts.csv")
 
-    output = columns_to_txt(df, "directory", "duration")
+    output = columns_to_data(df, "directory", "word_ids")
 
 
-    f = open("demo_file.txt", "w")
+    f = open("uaspeech.data", "w")
     f.write(output)
 
     f.close()

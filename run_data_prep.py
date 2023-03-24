@@ -99,11 +99,15 @@ def prep_torgo(args, torgo_file_path: str):
     save_splits_csv(train, test, dev)
 
 
+import os
 
 def main():
     args = get_data_prep_args()
+    df = pd.read_csv("torgo_transcripts.csv")
+
     with open('config.yaml', 'r') as f:
         doc = yaml.load(f)
+
 
     excel_file_path = doc["file_paths"]["excel_file_path"]
     uaspeech_file_path = doc["file_paths"]["uaspeech_file_path"]

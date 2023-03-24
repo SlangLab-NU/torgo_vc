@@ -158,7 +158,7 @@ def generate_directory_uaspeech(audio_file_path: str, transcript_file_path: str)
 
     Args:
         audio_file_path: "./data/UASpeech/audio/*/*/*.wav"
-
+        transcript_file_path: File path to the transcripts of the audio files
     Returns:
 
     """
