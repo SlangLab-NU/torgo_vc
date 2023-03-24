@@ -103,7 +103,6 @@ import os
 
 def main():
     args = get_data_prep_args()
-    df = pd.read_csv("torgo_transcripts.csv")
 
     with open('config.yaml', 'r') as f:
         doc = yaml.load(f)
