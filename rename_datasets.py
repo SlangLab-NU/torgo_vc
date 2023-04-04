@@ -31,8 +31,8 @@ def save_split_df(df: pandas.DataFrame, split: str):
     # df.apply(lambda row: open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split), axis=1)
 
     for index, row in df.iterrows():
-        new_directory_x = open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids_x"], split)
-        new_directory_y = open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids_y"], split)
+        new_directory_x = open_and_save_wav(row['directory_x'], row['speaker_ids_x'], row["word_ids"], split)
+        new_directory_y = open_and_save_wav(row["directory_y"], row['speaker_ids_y'], row["word_ids"], split)
         df.at[index, "directory_x"] = new_directory_x
         df.at[index, "directory_y"] = new_directory_y
 
@@ -48,7 +48,7 @@ def generate_wav_scp(df: pandas.DataFrame, split: str):
         output_x += row['speaker_ids_x'] + row['word_ids_x'] + " "
 
 def process_csv_file(df_dys, df_nondys, gender):
-    df_res = pd.merge(df_dys, df_nondys, on="transcripts")
+    df_res = pd.merge(df_dys, df_nondys, on="word_ids")
     df_res = df_res.loc[df_res["transcripts"] != "[relax your mouth in its normal position]"]
     df_res = df_res.drop_duplicates(subset="directory_x")
     df_res = df_res.reset_index(drop=True)
@@ -99,12 +99,13 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
     Returns: Train test split dataframe
     """
+    match_crit = "word_ids"
 
     if trgspk not in df["speaker_ids"].values:
-        raise ValueError("Target speaker not in dataset")
+        raise ValueError(f"Target speaker {trgspk} not in dataset")
 
     trgspk_df = df.loc[df["speaker_ids"] == trgspk]
-    trgspk_df = trgspk_df.drop_duplicates(subset=["transcripts"])
+    trgspk_df = trgspk_df.drop_duplicates(subset=[match_crit])
 
     if src_speaker != "na":
         if src_speaker in df["speaker_ids"].values:
@@ -120,13 +121,13 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
 
 
-    df = df.drop_duplicates(subset=["speaker_ids", "transcripts"])
+    df = df.drop_duplicates(subset=["speaker_ids", match_crit ])
 
 
 
 
     if match_mic.lower() == "y":
-        df = df.merge(trgspk_df, on=["transcripts", "mic"])
+        df = df.merge(trgspk_df, on=[match_crit, "mic"])
 
         # Element of randomness as mode can change if there is a tie.
         max_occurence_mic = df["mic"].mode().values[0]
@@ -134,8 +135,10 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
         df = df[df.mic == max_occurence_mic]
 
     else:
-        df = df.merge(trgspk_df, on=["transcripts"])
+        df = df.merge(trgspk_df, on=[match_crit])
 
+
+    df = df.rename(columns={"word_ids_x": "word_ids"})
 
     output = df
 

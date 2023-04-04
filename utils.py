@@ -19,7 +19,7 @@ def columns_to_txt(df: pandas.DataFrame, col_1_name: str, col_2_name: str):
 
 def columns_to_data(df: pandas.DataFrame, col_1_name: str, col_2_name: str):
 
-
+    df = df.drop_duplicates(subset=["word_ids"])
     str_output = ""
     for index, row in df.iterrows():
         str_output += "( " + str(row[col_1_name]) + ' "' + str(row[col_2_name]) + '" ) \n'
@@ -32,7 +32,7 @@ def main():
 
     df = pd.read_csv("UAspeech_transcripts.csv")
 
-    output = columns_to_data(df, "directory", "word_ids")
+    output = columns_to_data(df, "word_ids", "transcripts")
 
 
     f = open("uaspeech.data", "w")
