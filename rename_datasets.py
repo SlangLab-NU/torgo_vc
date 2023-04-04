@@ -140,7 +140,7 @@ def match_speakers(trgspk: str, df: pd.DataFrame, random_seed: int = 1, src_spea
 
     df = df.rename(columns={"word_ids_x": "word_ids"})
 
-    df = df.drop_duplicates(subset=["transcripts"])
+    df = df.drop_duplicates(subset=["transcripts_x"])
     output = df
 
     # TODO Train test split. How to split up the transcripts other than randomly
